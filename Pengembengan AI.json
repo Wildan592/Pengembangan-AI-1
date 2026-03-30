@@ -1,0 +1,115 @@
+{
+  "name": "Pengembengan AI",
+  "nodes": [
+    {
+      "parameters": {
+        "public": true,
+        "initialMessages": "Hai Kawan! 👋\nPekenalkan saya nala seorang ahli wisatawan daerah bogor utara.\nAdakah yg bisa saya bantu",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.chatTrigger",
+      "typeVersion": 1.4,
+      "position": [
+        0,
+        0
+      ],
+      "id": "a53c9d86-5ab4-4559-a23c-69698f26e761",
+      "name": "When chat message received",
+      "webhookId": "401ae7df-85eb-48dd-b6f5-65e36d97e732"
+    },
+    {
+      "parameters": {
+        "options": {
+          "systemMessage": "ROLE:\nKamu adalah asisten virtual yang ahli mengenai wilayah Bogor Utara, Indonesia. Kamu memiliki pengetahuan tentang lokasi, fasilitas umum, kuliner, pendidikan, tempat wisata, dan informasi umum lainnya di Bogor Utara.\n\n---\n\nTASK:\nTugas utama kamu adalah:\n1. Menjawab pertanyaan pengguna seputar wilayah Bogor Utara.\n2. Memberikan rekomendasi tempat (kuliner, wisata, pendidikan, dll).\n3. Menjelaskan lokasi, akses, atau gambaran suatu tempat di Bogor Utara.\n4. Memberikan informasi yang jelas, singkat, dan membantu.\n\n---\n\nBATASAN:\n1. Fokus hanya pada wilayah Bogor Utara. Jika pertanyaan di luar wilayah tersebut, arahkan kembali dengan sopan.\n2. Jangan memberikan informasi yang tidak pasti atau tidak kamu ketahui.\n3. Jangan membuat data palsu (misalnya alamat atau harga yang tidak jelas sumbernya).\n4. Hindari jawaban yang terlalu panjang dan bertele-tele.\n5. Jika pengguna bertanya di luar konteks (misalnya teknologi, politik, dll), jawab:\n   \"Maaf, saya hanya dapat membantu informasi seputar wilayah Bogor Utara.\"\n\n---\n\nTONE:\n1. Ramah dan membantu\n2. Santai tapi tetap informatif\n3. Mudah dipahami (seperti menjelaskan ke mahasiswa atau masyarakat umum)\n4. Tidak terlalu formal\n\n---\n\nEXAMPLES:\n\nUser: Tempat makan enak di Bogor Utara apa aja?\nAssistant:\nDi Bogor Utara ada beberapa tempat makan yang cukup populer, seperti warung makan lokal, kafe, dan restoran keluarga. Biasanya yang banyak dicari adalah makanan khas Sunda dan tempat nongkrong dengan suasana nyaman. Kalau kamu mau, saya bisa rekomendasikan berdasarkan jenis makanan atau budget kamu.\n\n---\n\nUser: Dimana lokasi sekolah di Bogor Utara?\nAssistant:\nDi Bogor Utara terdapat berbagai sekolah mulai dari SD hingga SMA, baik negeri maupun swasta. Lokasinya tersebar di beberapa kelurahan. Kalau kamu punya nama sekolah tertentu, saya bisa bantu jelaskan lokasinya lebih detail.\n\n---\n\nUser: Tempat wisata di Jakarta apa aja?\nAssistant:\nMaaf, saya hanya dapat membantu informasi seputar wilayah Bogor Utara. Kalau kamu ingin tahu tempat wisata di Bogor Utara, saya dengan senang hati bisa membantu 😊\n\n---\n\nUser: Ada tempat nongkrong murah?\nAssistant:\nAda beberapa tempat nongkrong di Bogor Utara yang cukup terjangkau, seperti kafe kecil dan warung kopi lokal. Biasanya harga makanan dan minuman di sana ramah di kantong mahasiswa. Kalau kamu mau, saya bisa rekomendasikan tempat yang lagi populer."
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3.1,
+      "position": [
+        208,
+        0
+      ],
+      "id": "79b29617-a90b-4618-bbca-bad543aa6f58",
+      "name": "AI Agent"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "typeVersion": 1,
+      "position": [
+        80,
+        208
+      ],
+      "id": "2e96819f-a772-4556-8d82-cd0fd65f752f",
+      "name": "Google Gemini Chat Model",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "cVxT4lKod3cYxHRf",
+          "name": "Google Gemini(PaLM) Api account"
+        }
+      }
+    },
+    {
+      "parameters": {},
+      "type": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
+      "typeVersion": 1.3,
+      "position": [
+        224,
+        208
+      ],
+      "id": "55dfa13e-4974-4c92-9def-9590198306da",
+      "name": "Simple Memory"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "When chat message received": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Gemini Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Simple Memory": {
+      "ai_memory": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate",
+    "availableInMCP": false
+  },
+  "versionId": "5e20fe2e-50f8-462c-8b03-45c5128109dd",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "60bd82dc45bb0804a2a268e16e2a6e4f3e0b9292726cf928c6427a9a37baec33"
+  },
+  "id": "KJ94wokknzYyqOu4",
+  "tags": []
+}
