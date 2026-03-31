@@ -1,0 +1,159 @@
+{
+  "name": "Pembuatan Agen AI Chatbot Web dengan Tool Data di Google Sheets",
+  "nodes": [
+    {
+      "parameters": {
+        "public": true,
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.chatTrigger",
+      "typeVersion": 1.4,
+      "position": [
+        0,
+        0
+      ],
+      "id": "c9ec824e-4ca9-4e28-996b-8874395ef477",
+      "name": "When chat message received",
+      "webhookId": "64a6c6fc-5b8f-4a65-a903-fc89b92f9bfd"
+    },
+    {
+      "parameters": {
+        "options": {
+          "systemMessage": "ROLE:\nKamu adalah asisten virtual yang membantu pengguna mencari informasi pelatihan di NFA.\n\n---\n\nTASK:\nTugas kamu adalah:\n1. Menjawab pertanyaan tentang pelatihan yang tersedia.\n2. Memberikan informasi:\n   - nama pelatihan\n   - deskripsi\n   - harga\n3. Mengambil data dari Google Sheets menggunakan tool yang tersedia.\n\n---\n\nINSTRUCTION TOOL USAGE:\n- Gunakan tool Google Sheets untuk mencari data pelatihan.\n- Jika user menyebut nama pelatihan, cari baris yang sesuai.\n- Jika user bertanya umum (misalnya “pelatihan apa saja”), tampilkan beberapa data dari sheet.\n\n---\n\nBATASAN:\n1. Jangan mengarang data, semua harus dari Google Sheets.\n2. Jika data tidak ditemukan, jawab dengan:\n   \"Maaf, data pelatihan tidak ditemukan.\"\n3. Jangan menjawab di luar topik pelatihan.\n\n---\n\nTONE:\n- Ramah\n- Jelas\n- Singkat\n- Informatif\n\n---\n\nEXAMPLES:\n\nUser: Ada pelatihan apa saja?\nAssistant:\nTerdapat beberapa pelatihan seperti Digital Marketing, Web Development, dan Python Programming. Jika ingin detail salah satu, silakan tanyakan ya.\n\n---\n\nUser: Harga pelatihan Python Programming berapa?\nAssistant:\nPelatihan Python Programming memiliki harga sekitar Rp3.500.000 dengan materi dasar-dasar pemrograman Python.\n\n---\n\nUser: Apa itu DevOps Engineer?\nAssistant:\nPelatihan DevOps Engineer mencakup pengenalan DevOps, Git/GitHub, Linux, Docker, Kubernetes, dan workflow automation dengan harga sekitar Rp15.000.000."
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3.1,
+      "position": [
+        280,
+        0
+      ],
+      "id": "03b2c935-8667-47dc-a24b-92c2101ff7b8",
+      "name": "AI Agent"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "typeVersion": 1,
+      "position": [
+        224,
+        224
+      ],
+      "id": "d0a6b3e8-d9ea-4047-9082-058ab2db7f72",
+      "name": "Google Gemini Chat Model",
+      "alwaysOutputData": false,
+      "credentials": {
+        "googlePalmApi": {
+          "id": "n1WS2ET7ii4UZi1d",
+          "name": "Google Gemini(PaLM) Api account 3"
+        }
+      }
+    },
+    {
+      "parameters": {},
+      "type": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
+      "typeVersion": 1.3,
+      "position": [
+        352,
+        224
+      ],
+      "id": "cb99a543-4cb0-498e-a2f9-afd2ed25aec4",
+      "name": "Simple Memory"
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "1kLNtuP77Qum_pjfpTir0irG6KLZpi0iF5RgJVFStby8",
+          "mode": "list",
+          "cachedResultName": "Salinan dari n8n 1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1kLNtuP77Qum_pjfpTir0irG6KLZpi0iF5RgJVFStby8/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Sheet1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1kLNtuP77Qum_pjfpTir0irG6KLZpi0iF5RgJVFStby8/edit#gid=0"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheetsTool",
+      "typeVersion": 4.7,
+      "position": [
+        480,
+        224
+      ],
+      "id": "bfbb2cec-9bbb-4a1d-8e95-4099fd63752d",
+      "name": "Get row(s) in sheet in Google Sheets",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "1AFsTP9KKRaHMyri",
+          "name": "Google Sheets account 2"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "When chat message received": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Gemini Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Simple Memory": {
+      "ai_memory": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get row(s) in sheet in Google Sheets": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate",
+    "availableInMCP": false
+  },
+  "versionId": "f4bee624-beb6-4c66-b0bc-ca7fa3e51603",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "60bd82dc45bb0804a2a268e16e2a6e4f3e0b9292726cf928c6427a9a37baec33"
+  },
+  "id": "jZYnpAUOdW2uA7Gk",
+  "tags": []
+}
