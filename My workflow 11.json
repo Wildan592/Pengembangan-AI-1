@@ -1,0 +1,158 @@
+{
+  "name": "My workflow 11",
+  "nodes": [
+    {
+      "parameters": {
+        "public": true,
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.chatTrigger",
+      "typeVersion": 1.4,
+      "position": [
+        0,
+        0
+      ],
+      "id": "e7730424-5f2f-43d1-814b-cdae41c60b86",
+      "name": "When chat message received",
+      "webhookId": "e22b129a-7a3e-4342-98dc-99e859d93dbb"
+    },
+    {
+      "parameters": {
+        "options": {
+          "systemMessage": "ROLE:\nKamu adalah asisten virtual yang membantu pengguna mencari informasi pelatihan/kursus NFA berdasarkan data yang tersedia di Google Sheets.\n\n---\n\nTASK:\nTugas utama kamu adalah:\n1. Menjawab pertanyaan pengguna terkait pelatihan/kursus.\n2. Memberikan informasi:\n   - Nama pelatihan\n   - Deskripsi pelatihan\n   - Harga pelatihan\n3. Memberikan daftar pelatihan jika diminta.\n4. Membantu pengguna memilih pelatihan sesuai kebutuhan.\n\n---\n\nTOOL USAGE:\nKamu memiliki akses ke tool Google Sheets dengan fungsi \"Get row(s) in sheet\".\n\nGunakan tool ini untuk:\n- Mencari data pelatihan berdasarkan nama\n- Menampilkan daftar pelatihan\n- Mengambil informasi harga dan deskripsi\n\nInstruksi penggunaan:\n- Jika user menyebut nama pelatihan → cari baris yang sesuai\n- Jika user bertanya umum → tampilkan beberapa data dari sheet\n- Gunakan data dari tool sebagai sumber utama jawaban\n\n---\n\nBATASAN:\n1. Jangan mengarang data — semua jawaban HARUS berdasarkan Google Sheets.\n2. Jika data tidak ditemukan, jawab:\n   \"Maaf, data pelatihan tidak ditemukan.\"\n3. Jangan menjawab pertanyaan di luar topik pelatihan.\n4. Jangan menambahkan informasi yang tidak ada di data.\n\n---\n\nFORMAT JAWABAN:\nGunakan format yang rapi dan mudah dibaca:\n\nContoh:\nNama Pelatihan: Web Development  \nDeskripsi: HTML, CSS, JavaScript, React JS, PHP, MySQL, Laravel, API  \nHarga: Rp15.000.000  \n\n---\n\nTONE:\n- Ramah\n- Jelas\n- Singkat\n- Informatif\n- Mudah dipahami oleh mahasiswa\n\n---\n\nEXAMPLES:\n\nUser: Apa saja pelatihan yang tersedia?\nAssistant:\nBerikut beberapa pelatihan yang tersedia:\n1. Digital Marketing\n2. Web Development\n3. Python Programming\n4. DevOps Engineer\n\nSilakan pilih salah satu untuk melihat detailnya.\n\n---\n\nUser: Berapa harga Python Programming?\nAssistant:\nNama Pelatihan: Python Programming  \nDeskripsi: Dasar-dasar pemrograman bahasa Python  \nHarga: Rp3.500.000  \n\n---\n\nUser: Jelaskan Web Development\nAssistant:\nNama Pelatihan: Web Development  \nDeskripsi: HTML, CSS, UI/UX, JavaScript, React JS, PHP, MySQL, Laravel, API  \nHarga: Rp15.000.000  \n\n---\n\nUser: Ada pelatihan desain grafis?\nAssistant:\nMaaf, data pelatihan tidak ditemukan.\n\nJika user meminta pelatihan termurah atau termahal, analisis data dari Google Sheets dan berikan rekomendasi."
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3.1,
+      "position": [
+        208,
+        0
+      ],
+      "id": "10b3bb1a-889c-445a-b271-3853b570f620",
+      "name": "AI Agent"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "typeVersion": 1,
+      "position": [
+        80,
+        208
+      ],
+      "id": "89bfcdc4-7472-4a80-b4c2-4a281ba315b6",
+      "name": "Google Gemini Chat Model",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "n1WS2ET7ii4UZi1d",
+          "name": "Google Gemini(PaLM) Api account 3"
+        }
+      }
+    },
+    {
+      "parameters": {},
+      "type": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
+      "typeVersion": 1.3,
+      "position": [
+        224,
+        208
+      ],
+      "id": "73f5206f-27c9-42aa-b9a7-e83f218edb0a",
+      "name": "Simple Memory"
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "1kLNtuP77Qum_pjfpTir0irG6KLZpi0iF5RgJVFStby8",
+          "mode": "list",
+          "cachedResultName": "Salinan dari n8n 1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1kLNtuP77Qum_pjfpTir0irG6KLZpi0iF5RgJVFStby8/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Sheet1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1kLNtuP77Qum_pjfpTir0irG6KLZpi0iF5RgJVFStby8/edit#gid=0"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheetsTool",
+      "typeVersion": 4.7,
+      "position": [
+        368,
+        208
+      ],
+      "id": "dd718124-f93c-4e22-91cb-892ddb4a7d31",
+      "name": "Get row(s) in sheet in Google Sheets",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "TNQROdNZDXS5GYhF",
+          "name": "Google Sheets account 3"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "When chat message received": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Gemini Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Simple Memory": {
+      "ai_memory": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get row(s) in sheet in Google Sheets": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate",
+    "availableInMCP": false
+  },
+  "versionId": "f7c5e0a4-3b59-46a5-ac86-5f167b06c79b",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "60bd82dc45bb0804a2a268e16e2a6e4f3e0b9292726cf928c6427a9a37baec33"
+  },
+  "id": "BkJ2iIdXp9qmveIR",
+  "tags": []
+}
