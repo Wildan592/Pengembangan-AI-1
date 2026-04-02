@@ -1,0 +1,299 @@
+{
+  "name": "Pembuatan Agen AI Chatbot Web dengan Data di Supabase Vector Store dari File PDF",
+  "nodes": [
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        0,
+        0
+      ],
+      "id": "528c53c6-7398-4893-ba69-238da6653991",
+      "name": "When clicking ‘Execute workflow’"
+    },
+    {
+      "parameters": {
+        "operation": "download",
+        "fileId": {
+          "__rl": true,
+          "value": "1RiCLr8-P_02taKmWL8_InkgBFzQQgq3Q",
+          "mode": "list",
+          "cachedResultName": "Panduan Pengembangan Proyek_ AniMatch AI Chatbot (RAG System).pdf",
+          "cachedResultUrl": "https://drive.google.com/file/d/1RiCLr8-P_02taKmWL8_InkgBFzQQgq3Q/view?usp=drivesdk"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleDrive",
+      "typeVersion": 3,
+      "position": [
+        224,
+        0
+      ],
+      "id": "214ceb02-af11-4761-9e67-bee5277e2496",
+      "name": "Download file",
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "gLn4u7vc4gziEP9H",
+          "name": "Google Drive account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "dataType": "binary",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.documentDefaultDataLoader",
+      "typeVersion": 1.1,
+      "position": [
+        592,
+        224
+      ],
+      "id": "591ed95b-301f-4386-a3d9-ba252c65bb91",
+      "name": "Default Data Loader"
+    },
+    {
+      "parameters": {
+        "modelName": "models/gemini-embedding-001"
+      },
+      "type": "@n8n/n8n-nodes-langchain.embeddingsGoogleGemini",
+      "typeVersion": 1,
+      "position": [
+        400,
+        224
+      ],
+      "id": "9cf2220b-e86c-4dd4-91b1-fc2f4b6d1ffb",
+      "name": "Embeddings Google Gemini",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "n1WS2ET7ii4UZi1d",
+          "name": "Google Gemini(PaLM) Api account 3"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "mode": "insert",
+        "tableName": {
+          "__rl": true,
+          "value": "documents",
+          "mode": "list",
+          "cachedResultName": "documents"
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.vectorStoreSupabase",
+      "typeVersion": 1.3,
+      "position": [
+        432,
+        0
+      ],
+      "id": "d58f9969-92e7-4aa1-b0fa-3f8795fa6da7",
+      "name": "Supabase Vector Store",
+      "credentials": {
+        "supabaseApi": {
+          "id": "wjm8OwTQUmGIGumc",
+          "name": "Supabase account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "public": true,
+        "initialMessages": "Halo! Selamat datang di AniMatch AI. 🐉\n\nLagi cari rekomendasi anime dengan karakter utama yang overpowered tapi sombong? Atau butuh saran tontonan berdasarkan mood tertentu?\n\nTanyakan saja padaku, aku akan mencarikan yang terbaik dari database-ku!",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.chatTrigger",
+      "typeVersion": 1.4,
+      "position": [
+        -16,
+        352
+      ],
+      "id": "b19abb91-ee67-4ab5-afc0-bb5a3958df2a",
+      "name": "When chat message received",
+      "webhookId": "21511572-c4b2-4223-8df8-7f44b6b531b1"
+    },
+    {
+      "parameters": {
+        "options": {
+          "systemMessage": "\"Kamu adalah AniMatch AI, asisten ahli rekomendasi anime. Tugas utamanya adalah membantu pengguna menemukan anime berdasarkan kepribadian karakter (terutama yang kuat dan angkuh/cocky) serta vibe cerita. \n\nAturan Penting:\n1. Gunakan Tool Supabase Vector Store untuk mencari informasi dari dokumen panduan yang sudah di-upload. 2. Jawablah dengan gaya bahasa yang santai tapi informatif (seperti sesama penggemar anime). \n3. Jika informasi tidak ditemukan dalam dokumen, katakan: 'Maaf, saya belum menemukan informasi itu di database panduan saya.' Jangan mengarang jawaban di luar data dokumen. 4. Selalu berikan alasan kenapa anime tersebut direkomendasikan berdasarkan tipe karakter yang diminta user.\""
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3.1,
+      "position": [
+        144,
+        368
+      ],
+      "id": "26b5aa74-72dc-4a9d-b0fb-7e712d73dd6e",
+      "name": "AI Agent"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "typeVersion": 1,
+      "position": [
+        16,
+        576
+      ],
+      "id": "1b0b08cd-b631-4047-816a-78fc2ff5298f",
+      "name": "Google Gemini Chat Model",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "n1WS2ET7ii4UZi1d",
+          "name": "Google Gemini(PaLM) Api account 3"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "mode": "retrieve-as-tool",
+        "toolDescription": "Panggil tool ini untuk mendapatkan informasi mengenai rekomendasi anime dari dokumen.",
+        "tableName": {
+          "__rl": true,
+          "value": "documents",
+          "mode": "list",
+          "cachedResultName": "documents"
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.vectorStoreSupabase",
+      "typeVersion": 1.3,
+      "position": [
+        480,
+        496
+      ],
+      "id": "c61c8a24-56b6-4324-a80d-a965901285d9",
+      "name": "Supabase Vector Store1",
+      "credentials": {
+        "supabaseApi": {
+          "id": "wjm8OwTQUmGIGumc",
+          "name": "Supabase account 2"
+        }
+      }
+    },
+    {
+      "parameters": {},
+      "type": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
+      "typeVersion": 1.3,
+      "position": [
+        160,
+        576
+      ],
+      "id": "b3820bda-8139-48e6-bb2f-e40ff7eee0b2",
+      "name": "Simple Memory"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "When clicking ‘Execute workflow’": {
+      "main": [
+        [
+          {
+            "node": "Download file",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Download file": {
+      "main": [
+        [
+          {
+            "node": "Supabase Vector Store",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Default Data Loader": {
+      "ai_document": [
+        [
+          {
+            "node": "Supabase Vector Store",
+            "type": "ai_document",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Embeddings Google Gemini": {
+      "ai_embedding": [
+        [
+          {
+            "node": "Supabase Vector Store",
+            "type": "ai_embedding",
+            "index": 0
+          },
+          {
+            "node": "Supabase Vector Store1",
+            "type": "ai_embedding",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "When chat message received": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Gemini Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Supabase Vector Store1": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Simple Memory": {
+      "ai_memory": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate",
+    "availableInMCP": false
+  },
+  "versionId": "60716c2e-b7b1-4cd1-9fe8-c1548e2cc6d0",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "60bd82dc45bb0804a2a268e16e2a6e4f3e0b9292726cf928c6427a9a37baec33"
+  },
+  "id": "gvqnni6630E8ChQD",
+  "tags": []
+}
