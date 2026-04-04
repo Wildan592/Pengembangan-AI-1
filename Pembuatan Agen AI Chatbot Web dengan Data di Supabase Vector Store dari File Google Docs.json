@@ -1,0 +1,450 @@
+{
+  "name": "Pembuatan Agen AI Chatbot Web dengan Data di Supabase Vector Store dari File Google Docs",
+  "nodes": [
+    {
+      "parameters": {
+        "pollTimes": {
+          "item": [
+            {
+              "mode": "everyMinute"
+            }
+          ]
+        },
+        "triggerOn": "specificFolder",
+        "folderToWatch": {
+          "__rl": true,
+          "value": "1ivehYs3fLbuBT5aSaVrJAU1QzJErLTYr",
+          "mode": "list",
+          "cachedResultName": "RAG01",
+          "cachedResultUrl": "https://drive.google.com/drive/folders/1ivehYs3fLbuBT5aSaVrJAU1QzJErLTYr"
+        },
+        "event": "fileCreated",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleDriveTrigger",
+      "typeVersion": 1,
+      "position": [
+        0,
+        0
+      ],
+      "id": "ceb5ae4a-a922-4968-866b-0eaa60a56024",
+      "name": "Google Drive Trigger",
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "gLn4u7vc4gziEP9H",
+          "name": "Google Drive account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "1d89bb37-f410-4228-86e8-a4561642e32b",
+              "name": "anime_id",
+              "value": "={{ $json.id }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        224,
+        0
+      ],
+      "id": "0abe160a-46bc-41c6-b29c-0306cfed1c58",
+      "name": "Edit Fields"
+    },
+    {
+      "parameters": {
+        "operation": "download",
+        "fileId": {
+          "__rl": true,
+          "value": "={{ $json.anime_id }}",
+          "mode": "id"
+        },
+        "options": {
+          "googleFileConversion": {
+            "conversion": {
+              "docsToFormat": "text/plain"
+            }
+          }
+        }
+      },
+      "type": "n8n-nodes-base.googleDrive",
+      "typeVersion": 3,
+      "position": [
+        448,
+        0
+      ],
+      "id": "e19b50ed-1f80-4364-8c6f-5c94eadc8d5d",
+      "name": "Download file",
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "gLn4u7vc4gziEP9H",
+          "name": "Google Drive account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "text",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.extractFromFile",
+      "typeVersion": 1.1,
+      "position": [
+        672,
+        0
+      ],
+      "id": "baed4716-ef81-4d29-bdcc-db2744b12bff",
+      "name": "Extract from File"
+    },
+    {
+      "parameters": {
+        "mode": "insert",
+        "tableName": {
+          "__rl": true,
+          "value": "documents",
+          "mode": "list",
+          "cachedResultName": "documents"
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.vectorStoreSupabase",
+      "typeVersion": 1.3,
+      "position": [
+        928,
+        0
+      ],
+      "id": "d5e2bede-b44f-4a2b-8afb-f27b09b6f30a",
+      "name": "Supabase Vector Store",
+      "credentials": {
+        "supabaseApi": {
+          "id": "wjm8OwTQUmGIGumc",
+          "name": "Supabase account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "modelName": "models/gemini-embedding-001"
+      },
+      "type": "@n8n/n8n-nodes-langchain.embeddingsGoogleGemini",
+      "typeVersion": 1,
+      "position": [
+        896,
+        224
+      ],
+      "id": "7a0cdbfb-81bd-4303-8823-bb075528efdf",
+      "name": "Embeddings Google Gemini",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "n1WS2ET7ii4UZi1d",
+          "name": "Google Gemini(PaLM) Api account 3"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "textSplittingMode": "custom",
+        "options": {
+          "metadata": {
+            "metadataValues": [
+              {
+                "name": "anime_id",
+                "value": "={{ $('Edit Fields').item.json.anime_id }}"
+              }
+            ]
+          }
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.documentDefaultDataLoader",
+      "typeVersion": 1.1,
+      "position": [
+        1024,
+        224
+      ],
+      "id": "e5d8d9cc-9182-4d1b-98e8-d41c21383eb4",
+      "name": "Default Data Loader"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.textSplitterRecursiveCharacterTextSplitter",
+      "typeVersion": 1,
+      "position": [
+        1104,
+        432
+      ],
+      "id": "b0b1f3da-4133-4dfa-be1e-daa7a047015c",
+      "name": "Recursive Character Text Splitter"
+    },
+    {
+      "parameters": {
+        "public": true,
+        "initialMessages": "\"Halo! Selamat datang di AniMatch AI. 🐉\n\nLagi cari rekomendasi anime dengan karakter utama yang sangat kuat tapi sombong? Atau butuh saran tontonan berdasarkan 'vibe' tertentu?\n\nTanyakan saja padaku, aku akan mencarikan yang paling cocok dari database panduanku!\"",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.chatTrigger",
+      "typeVersion": 1.4,
+      "position": [
+        0,
+        640
+      ],
+      "id": "eead12c6-1cec-4c5a-bdc9-2336b05fd9a7",
+      "name": "When chat message received",
+      "webhookId": "758ac6d4-c6ee-4577-8a98-c089b66db134"
+    },
+    {
+      "parameters": {
+        "options": {
+          "systemMessage": "\"Kamu adalah AniMatch AI, asisten ahli rekomendasi anime yang cerdas dan antusias. Tugas utamanya adalah membantu pengguna menemukan anime berdasarkan kepribadian karakter serta vibe cerita sesuai dengan dokumen yang tersedia.Instruksi Operasional:\n* Gunakan Tool: Kamu WAJIB menggunakan tool Supabase Vector Store untuk mencari informasi sebelum memberikan jawaban kepada pengguna.\n* Batasan Data: Jika informasi atau rekomendasi yang diminta pengguna tidak ditemukan dalam database dokumen yang tersedia, kamu TIDAK BOLEH mengarang jawaban sendiri. Berikan jawaban: 'Maaf, saya belum dapat menjawab karena informasi tersebut tidak ditemukan dalam database panduan saya.'.\n* Gaya Bahasa: Gunakan gaya bahasa yang santai, bersahabat, namun tetap informatif seperti sesama penggemar anime.Prioritas Karakter: Fokuskan rekomendasi pada karakter yang sesuai dengan batasan masalah pada dokumen pengembangan."
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3.1,
+      "position": [
+        288,
+        640
+      ],
+      "id": "0bba2ae8-c038-4d87-8cd2-bc39e6e09c84",
+      "name": "AI Agent"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "typeVersion": 1,
+      "position": [
+        224,
+        864
+      ],
+      "id": "24bebad1-c5f0-4cc7-b7fe-125e49c19e80",
+      "name": "Google Gemini Chat Model",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "n1WS2ET7ii4UZi1d",
+          "name": "Google Gemini(PaLM) Api account 3"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "mode": "retrieve-as-tool",
+        "toolDescription": "\"Panggil tool ini untuk mendapatkan informasi mengenai panduan dan rekomendasi anime dari database\"",
+        "tableName": {
+          "__rl": true,
+          "value": "documents",
+          "mode": "list",
+          "cachedResultName": "documents"
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.vectorStoreSupabase",
+      "typeVersion": 1.3,
+      "position": [
+        480,
+        864
+      ],
+      "id": "cd4a7646-a15c-4fe1-a5aa-a479df192e52",
+      "name": "Supabase Vector Store1",
+      "credentials": {
+        "supabaseApi": {
+          "id": "wjm8OwTQUmGIGumc",
+          "name": "Supabase account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "modelName": "models/gemini-embedding-001"
+      },
+      "type": "@n8n/n8n-nodes-langchain.embeddingsGoogleGemini",
+      "typeVersion": 1,
+      "position": [
+        560,
+        1072
+      ],
+      "id": "1b146686-bc56-4f1c-b04a-e15241346204",
+      "name": "Embeddings Google Gemini1",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "n1WS2ET7ii4UZi1d",
+          "name": "Google Gemini(PaLM) Api account 3"
+        }
+      }
+    },
+    {
+      "parameters": {},
+      "type": "@n8n/n8n-nodes-langchain.memoryPostgresChat",
+      "typeVersion": 1.3,
+      "position": [
+        352,
+        864
+      ],
+      "id": "d569a2d4-0d4e-478e-9378-96628bf5ae82",
+      "name": "Postgres Chat Memory",
+      "credentials": {
+        "postgres": {
+          "id": "OhA6sCMpvaWkrHC2",
+          "name": "Postgres account"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Google Drive Trigger": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields": {
+      "main": [
+        [
+          {
+            "node": "Download file",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Download file": {
+      "main": [
+        [
+          {
+            "node": "Extract from File",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Extract from File": {
+      "main": [
+        [
+          {
+            "node": "Supabase Vector Store",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Embeddings Google Gemini": {
+      "ai_embedding": [
+        [
+          {
+            "node": "Supabase Vector Store",
+            "type": "ai_embedding",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Default Data Loader": {
+      "ai_document": [
+        [
+          {
+            "node": "Supabase Vector Store",
+            "type": "ai_document",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Recursive Character Text Splitter": {
+      "ai_textSplitter": [
+        [
+          {
+            "node": "Default Data Loader",
+            "type": "ai_textSplitter",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "When chat message received": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Gemini Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Supabase Vector Store1": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Embeddings Google Gemini1": {
+      "ai_embedding": [
+        [
+          {
+            "node": "Supabase Vector Store1",
+            "type": "ai_embedding",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Postgres Chat Memory": {
+      "ai_memory": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate",
+    "availableInMCP": false
+  },
+  "versionId": "f1a88d7d-ca5d-447d-8c10-af9e0f322ec5",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "60bd82dc45bb0804a2a268e16e2a6e4f3e0b9292726cf928c6427a9a37baec33"
+  },
+  "id": "i5JK2MZ2GsLn4kxa",
+  "tags": []
+}
